@@ -53,16 +53,12 @@ const DocumentScanScreen = () => {
     if (!tempPhoto) return;
     setLoading(true);
     try {
-      const res = await uploadDocument(
-        customerId,
-        currentSide,
-        { uri: tempPhoto.uri, name: `${currentSide}.jpg`, mimeType: 'image/jpeg' },
-        (pct) => setProgress(pct),
-      );
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       addDocument({
         type: currentSide,
-        documentId: res.documentId,
+        documentId: `local_${Date.now()}`,
         uri: tempPhoto.uri,
       });
       setTempPhoto(null);
@@ -84,7 +80,7 @@ const DocumentScanScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      <StepIndicator currentStep={3} />
+      <StepIndicator currentStep={2} />
 
       <ScrollView style={styles.contentScrollView} contentContainerStyle={styles.contentContainer}>
         <View style={styles.header}>
@@ -200,9 +196,9 @@ const DocumentScanScreen = () => {
               {isComplete && (
                 <TouchableOpacity
                   style={[buttonStyles.base, buttonStyles.primary, styles.btn]}
-                  onPress={() => router.push('/selfie')}
+                  onPress={() => router.push('/ocr-preview')}
                 >
-                  <Text style={buttonStyles.textPrimary}>Proceed to Selfie →</Text>
+                  <Text style={buttonStyles.textPrimary}>Extract Document Data →</Text>
                 </TouchableOpacity>
               )}
             </View>

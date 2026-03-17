@@ -7,12 +7,11 @@ const { width } = Dimensions.get('window');
 
 const STEPS = [
   { id: 1, title: 'Welcome' },
-  { id: 2, title: 'Personal Info' },
-  { id: 3, title: 'Scan ID' },
+  { id: 2, title: 'Scan ID' },
+  { id: 3, title: 'Extract Data' },
   { id: 4, title: 'Face Verify' },
-  { id: 5, title: 'Address' },
-  { id: 6, title: 'Signature' },
-  { id: 7, title: 'Review' },
+  { id: 5, title: 'Signature' },
+  { id: 6, title: 'Review' },
 ];
 
 const StepIndicator = ({ currentStep }) => {

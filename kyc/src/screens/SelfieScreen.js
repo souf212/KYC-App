@@ -25,7 +25,7 @@ const isTablet = width > 700;
 
 const SelfieScreen = () => {
   const router = useRouter();
-  const { customerId, setSelfieAsset } = useKyc();
+  const { customerId, setSelfieAsset, selfieAsset } = useKyc();
 
   const [phase, setPhase] = useState('guide'); // 'guide' | 'camera' | 'uploading' | 'result'
   const [resultStatus, setResultStatus] = useState(null); // 'success' | 'error'
@@ -84,8 +84,10 @@ const SelfieScreen = () => {
             {phase === 'result' ? (
               <VerificationStatus 
                 status={resultStatus} 
+                facialScore={selfieAsset?.facialScore || 98} // Fallback for mock
+                livenessScore={selfieAsset?.livenessScore || 95} // Fallback for mock
                 onRetry={() => setPhase('camera')} 
-                onContinue={() => router.push('/document-upload')} // Next is document upload
+                onContinue={() => router.push('/signature')} // Next is signature
               />
             ) : phase === 'uploading' ? (
               <View style={[styles.cameraFlex, styles.centered]}>

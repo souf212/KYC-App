@@ -4,7 +4,7 @@ import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
 
-const VerificationStatus = ({ status, onRetry, onContinue }) => {
+const VerificationStatus = ({ status, facialScore, livenessScore, onRetry, onContinue }) => {
   const isSuccess = status === 'success';
 
   return (
@@ -24,6 +24,15 @@ const VerificationStatus = ({ status, onRetry, onContinue }) => {
           ? 'Your identity has been verified. You can now proceed to the next step.' 
           : 'We could not verify your face against the ID provided. Please try again in better lighting.'}
       </Text>
+
+      {isSuccess && facialScore && livenessScore && (
+        <View style={styles.metricsBox}>
+          <Text style={styles.metricLabel}>Match Similarity:</Text>
+          <Text style={styles.metricValue}>{facialScore}%</Text>
+          <Text style={[styles.metricLabel, { marginTop: 12 }]}>Liveness Score:</Text>
+          <Text style={styles.metricValue}>{livenessScore}%</Text>
+        </View>
+      )}
 
       {isSuccess ? (
         <TouchableOpacity style={[buttonStyles.base, buttonStyles.primary, styles.button]} onPress={onContinue}>
@@ -80,6 +89,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
     maxWidth: 400,
+  },
+  metricsBox: {
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    width: '100%',
+    maxWidth: 300,
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  metricLabel: {
+    fontSize: typography.size.small,
+    color: colors.text.secondary,
+    fontWeight: typography.weight.medium,
+  },
+  metricValue: {
+    fontSize: typography.size.sectionTitle,
+    color: colors.success,
+    fontWeight: typography.weight.bold,
   },
   button: {
     width: '100%',

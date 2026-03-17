@@ -3,7 +3,7 @@
  *
  * Stores:
  *  - customerId: assigned by backend after POST /api/kyc/customer
- *  - personalInfo: form data from PersonalInfoScreen
+ *  - personalInfo: form data from OCRPreviewScreen
  *  - uploadedDocuments: array of { type, documentId, uri }
  *  - selfieAsset: { uri, biometricId, facialScore, livenessScore }
  *  - uploadedFiles: array of { name, documentId } (utility bills)

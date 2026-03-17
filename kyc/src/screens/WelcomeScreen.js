@@ -117,7 +117,7 @@ const WelcomeScreen = () => {
           <TouchableOpacity
             style={[buttonStyles.base, buttonStyles.primary, styles.btn]}
             activeOpacity={0.8}
-            onPress={() => router.push('/personal-info')}
+            onPress={() => router.push('/document-scan')}
           >
             <Text style={buttonStyles.textPrimary}>Start My Application →</Text>
           </TouchableOpacity>

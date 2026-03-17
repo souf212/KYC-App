@@ -12,8 +12,8 @@ import axios from 'axios';
 const api = axios.create({
   // Pour appareil physique (Expo Go) : IP LAN du PC
   // Port 5283 = port HTTP configuré dans Properties/launchSettings.json
-  baseURL: 'http://192.168.1.99:5283/api/kyc',
-  timeout: 30000, // 30 second timeout for file uploads
+  baseURL: 'http://192.168.11.130:5283/api/kyc',
+  timeout: 30000,
   headers: {
     Accept: 'application/json',
   },
@@ -32,7 +32,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.error || error.message || 'Network error';
+    let message = error.response?.data?.error || error.message;
+    if (!error.response) {
+      message = `Network Error: Cannot connect to backend at ${api.defaults.baseURL}. Ensure the .NET server is running on port 5283 and your device is on the same WiFi.`;
+    }
     console.error('[API Error]', message, error.response?.status);
     return Promise.reject(new Error(message));
   },
