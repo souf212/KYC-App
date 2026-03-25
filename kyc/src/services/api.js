@@ -1,57 +1,69 @@
 /**
  * KYC API Service
- * Axios-based HTTP client for all KYC backend endpoints.
+ * Native fetch-based HTTP client for all KYC backend endpoints.
+ * (Replaced Axios with fetch to avoid Android network restrictions)
  *
- * BASE_URL uses 10.0.2.2 which is the Android Emulator's alias for the host machine's localhost.
- * For physical devices on same WiFi, replace with your machine's LAN IP (e.g. 192.168.x.x).
+ * BASE_URL for physical devices on WiFi uses the machine's LAN IP (e.g. 192.168.x.x).
  */
 
-import axios from 'axios';
+const API_BASE_URL = 'http://192.168.11.166:5283/api/kyc';
+const API_TIMEOUT = 30000; // 30 seconds
 
-// ─── Axios Instance ────────────────────────────────────────────────────────────
-const api = axios.create({
-  // Pour appareil physique (Expo Go) : IP LAN du PC
-  // Port 5283 = port HTTP configuré dans Properties/launchSettings.json
-  baseURL: 'http://192.168.11.130:5283/api/kyc',
-  timeout: 30000,
-  headers: {
-    Accept: 'application/json',
-  },
-});
+// ─── Helper: Fetch with Timeout ──────────────────────────────────────────────
+const fetchWithTimeout = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-// Request interceptor — log outgoing requests in development
-api.interceptors.request.use(
-  (config) => {
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    return response;
+  } catch (error) {
+    clearTimeout(timeout);
+    throw error;
+  }
+};
 
-// Response interceptor — log errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    let message = error.response?.data?.error || error.message;
-    if (!error.response) {
-      message = `Network Error: Cannot connect to backend at ${api.defaults.baseURL}. Ensure the .NET server is running on port 5283 and your device is on the same WiFi.`;
-    }
-    console.error('[API Error]', message, error.response?.status);
-    return Promise.reject(new Error(message));
-  },
-);
+// ─── Helper: Handle Fetch Errors ────────────────────────────────────────────
+const handleFetchError = (error) => {
+  let message = error.message;
+  if (error.name === 'AbortError') {
+    message = `Network Timeout: Request took longer than ${API_TIMEOUT}ms`;
+  } else if (!navigator.onLine) {
+    message = `Network Error: Cannot connect to backend at ${API_BASE_URL}. Ensure the .NET server is running on port 5283 and your device is on the same WiFi.`;
+  } else {
+    message = `Network Error: Cannot connect to backend at ${API_BASE_URL}. Ensure the .NET server is running on port 5283 and your device is on the same WiFi.`;
+  }
+  console.error('[API Error]', message);
+  return new Error(message);
+};
 
-// ─── API Functions ─────────────────────────────────────────────────────────────
+// ─── API Functions ──────────────────────────────────────────────────────────
 
 /**
  * POST /api/kyc/customer
  * Register personal info. Returns { customerId, status, message }.
  */
 export const createCustomer = async (personalInfo) => {
-  const response = await api.post('/customer', personalInfo, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return response.data;
+  try {
+    console.log(`[API] POST ${API_BASE_URL}/customer`);
+    const response = await fetchWithTimeout(`${API_BASE_URL}/customer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(personalInfo),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleFetchError(error);
+  }
 };
 
 /**
@@ -62,25 +74,30 @@ export const createCustomer = async (personalInfo) => {
  * @param {object} fileAsset - { uri, name, mimeType } from expo-image-picker or expo-document-picker
  */
 export const uploadDocument = async (customerId, type, fileAsset, onUploadProgress) => {
-  const formData = new FormData();
-  formData.append('customerId', String(customerId));
-  formData.append('type', type);
-  formData.append('file', {
-    uri: fileAsset.uri,
-    name: fileAsset.name || `document_${Date.now()}.jpg`,
-    type: fileAsset.mimeType || 'image/jpeg',
-  });
+  try {
+    console.log(`[API] POST ${API_BASE_URL}/document`);
+    const formData = new FormData();
+    formData.append('customerId', String(customerId));
+    formData.append('type', type);
+    formData.append('file', {
+      uri: fileAsset.uri,
+      name: fileAsset.name || `document_${Date.now()}.jpg`,
+      type: fileAsset.mimeType || 'image/jpeg',
+    });
 
-  const response = await api.post('/document', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    onUploadProgress: (progressEvent) => {
-      if (onUploadProgress && progressEvent.total) {
-        const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        onUploadProgress(pct);
-      }
-    },
-  });
-  return response.data;
+    const response = await fetchWithTimeout(`${API_BASE_URL}/document`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleFetchError(error);
+  }
 };
 
 /**
@@ -90,24 +107,29 @@ export const uploadDocument = async (customerId, type, fileAsset, onUploadProgre
  * @param {object} photoAsset - { uri, mimeType } from expo-camera
  */
 export const uploadSelfie = async (customerId, photoAsset, onUploadProgress) => {
-  const formData = new FormData();
-  formData.append('customerId', String(customerId));
-  formData.append('file', {
-    uri: photoAsset.uri,
-    name: `selfie_${Date.now()}.jpg`,
-    type: photoAsset.mimeType || 'image/jpeg',
-  });
+  try {
+    console.log(`[API] POST ${API_BASE_URL}/selfie`);
+    const formData = new FormData();
+    formData.append('customerId', String(customerId));
+    formData.append('file', {
+      uri: photoAsset.uri,
+      name: `selfie_${Date.now()}.jpg`,
+      type: photoAsset.mimeType || 'image/jpeg',
+    });
 
-  const response = await api.post('/selfie', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-    onUploadProgress: (progressEvent) => {
-      if (onUploadProgress && progressEvent.total) {
-        const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        onUploadProgress(pct);
-      }
-    },
-  });
-  return response.data;
+    const response = await fetchWithTimeout(`${API_BASE_URL}/selfie`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleFetchError(error);
+  }
 };
 
 /**
@@ -117,14 +139,25 @@ export const uploadSelfie = async (customerId, photoAsset, onUploadProgress) => 
  * @param {string} signatureBase64 - Data URI from react-native-signature-canvas (data:image/png;base64,...)
  */
 export const uploadSignature = async (customerId, signatureBase64) => {
-  const formData = new FormData();
-  formData.append('customerId', String(customerId));
-  formData.append('signatureBase64', signatureBase64);
+  try {
+    console.log(`[API] POST ${API_BASE_URL}/signature`);
+    const formData = new FormData();
+    formData.append('customerId', String(customerId));
+    formData.append('signatureBase64', signatureBase64);
 
-  const response = await api.post('/signature', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data;
+    const response = await fetchWithTimeout(`${API_BASE_URL}/signature`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleFetchError(error);
+  }
 };
 
 /**
@@ -133,10 +166,29 @@ export const uploadSignature = async (customerId, signatureBase64) => {
  * @param {number} customerId
  */
 export const submitDossier = async (customerId) => {
-  const response = await api.post('/submit', { customerId }, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return response.data;
+  try {
+    console.log(`[API] POST ${API_BASE_URL}/submit`);
+    const response = await fetchWithTimeout(`${API_BASE_URL}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleFetchError(error);
+  }
 };
 
-export default api;
+export default {
+  createCustomer,
+  uploadDocument,
+  uploadSelfie,
+  uploadSignature,
+  submitDossier,
+};
+

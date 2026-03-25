@@ -1,5 +1,5 @@
 /**
- * WelcomeScreen — Step 1 of 7
+ * WelcomeScreen — Step 1 of 6
  * Landing page for the Digital Counter Terminal.
  */
 
@@ -16,6 +16,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useKyc } from '../context/KycContext';
+import StepIndicator from '../components/StepIndicator';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
@@ -30,7 +31,7 @@ const WelcomeScreen = () => {
   // Reset KYC state when arriving at the welcome screen
   useEffect(() => {
     resetKyc();
-  }, []);
+  }, [resetKyc]);
 
   const slideAnim = useRef(new Animated.Value(30)).current;
   const fadeAnim  = useRef(new Animated.Value(0)).current;
@@ -49,11 +50,12 @@ const WelcomeScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StepIndicator currentStep={1} />
       
       <ScrollView 
         contentContainerStyle={styles.scrollContent}

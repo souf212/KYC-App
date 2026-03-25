@@ -9,11 +9,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import StepIndicator from '../components/StepIndicator';
 import { useKyc } from '../context/KycContext';
 import { submitDossier } from '../services/api';
-import { Dimensions } from 'react-native';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
@@ -28,7 +28,6 @@ const ReviewScreen = () => {
     personalInfo,
     uploadedDocuments,
     selfieAsset,
-    uploadedFiles,
     signatureBase64,
     resetKyc,
   } = useKyc();
@@ -105,7 +104,7 @@ const ReviewScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      <StepIndicator currentStep={7} />
+      <StepIndicator currentStep={6} />
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
@@ -116,7 +115,7 @@ const ReviewScreen = () => {
         <View style={styles.grid}>
           {/* Column 1: Info & Files */}
           <View style={styles.column}>
-            <SectionCard title="👤 Personal Information" onEdit={() => router.push('/personal-info')}>
+            <SectionCard title="👤 Personal Information" onEdit={() => router.push('/ocr-preview')}>
               {personalInfo ? (
                 <>
                   <InfoRow label="Full Name" value={`${personalInfo.firstName} ${personalInfo.lastName}`} />
@@ -126,18 +125,6 @@ const ReviewScreen = () => {
                   <InfoRow label="Dob"       value={new Date(personalInfo.birthDate).toLocaleDateString()} />
                 </>
               ) : <Text style={styles.missing}>⚠️ Missing information</Text>}
-            </SectionCard>
-
-            <SectionCard title="📁 Address Proof" onEdit={() => router.push('/document-upload')}>
-              {uploadedFiles && uploadedFiles.length > 0 ? (
-                uploadedFiles.map((f, i) => (
-                  <View key={i} style={styles.fileRow}>
-                    <Text style={styles.fileIcon}>📄</Text>
-                    <Text style={styles.fileName} numberOfLines={1}>{f.name}</Text>
-                    <Text style={styles.uploadedBadge}>✓</Text>
-                  </View>
-                ))
-              ) : <Text style={styles.skipped}>Skipped</Text>}
             </SectionCard>
           </View>
 

@@ -15,6 +15,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import StepIndicator from '../components/StepIndicator';
 import ProgressLoader from '../components/ProgressLoader';
@@ -22,7 +23,6 @@ import { useKyc } from '../context/KycContext';
 import { createCustomer, uploadDocument } from '../services/api';
 import { validatePersonalInfo } from '../utils/validation';
 import { extractTextFromImage, parseMoroccanCIN } from '../services/ocrService';
-import { Dimensions } from 'react-native';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
@@ -100,7 +100,7 @@ const OCRPreviewScreen = () => {
     performActualOCR();
 
     return () => { isMounted = false; };
-  }, []);
+  }, [uploadedDocuments]);
 
   const handleChange = (key, value) => {
     setForm((f) => ({ ...f, [key]: value }));

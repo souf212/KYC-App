@@ -40,7 +40,7 @@ const SignatureScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-      <StepIndicator currentStep={6} />
+      <StepIndicator currentStep={5} />
 
       {loading && (
         <View style={styles.overlay}>

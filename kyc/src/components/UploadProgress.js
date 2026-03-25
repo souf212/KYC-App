@@ -22,7 +22,7 @@ const UploadProgress = ({ visible, progress = 0, label = 'Uploading...' }) => {
       duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [visible]);
+  }, [visible, opacityAnim]);
 
   useEffect(() => {
     // Smooth progress bar width animation
@@ -31,7 +31,7 @@ const UploadProgress = ({ visible, progress = 0, label = 'Uploading...' }) => {
       duration: 300,
       useNativeDriver: false,
     }).start();
-  }, [progress]);
+  }, [progress, widthAnim]);
 
   if (!visible) return null;
 

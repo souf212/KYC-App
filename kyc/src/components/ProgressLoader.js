@@ -13,7 +13,7 @@ const ProgressLoader = ({ visible, progress = 0, label = 'Loading...' }) => {
       duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [visible]);
+  }, [visible, opacityAnim]);
 
   useEffect(() => {
     Animated.timing(widthAnim, {
@@ -21,7 +21,7 @@ const ProgressLoader = ({ visible, progress = 0, label = 'Loading...' }) => {
       duration: 300,
       useNativeDriver: false,
     }).start();
-  }, [progress]);
+  }, [progress, widthAnim]);
 
   if (!visible) return null;
 

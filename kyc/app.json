@@ -33,6 +33,14 @@
     "plugins": [
       "expo-router",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
@@ -58,7 +66,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "5d5a5f8d-a0bb-4d82-a381-8c8196868b8b"
+        "projectId": "68bb15ea-70cc-465c-b6e4-dbbaecf7e563"
       }
     }
   }

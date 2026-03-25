@@ -25,7 +25,7 @@ const StepIndicator = ({ currentStep }) => {
       duration: 500,
       useNativeDriver: false,
     }).start();
-  }, [currentStep]);
+  }, [currentStep, progressAnim]);
 
   const estimatedProgress = Math.round(((currentStep - 1) / (STEPS.length - 1)) * 100);
 
@@ -58,7 +58,6 @@ const StepIndicator = ({ currentStep }) => {
         {STEPS.map((step, index) => {
           const isCompleted = step.id < currentStep;
           const isActive = step.id === currentStep;
-          const isPending = step.id > currentStep;
 
           return (
              <View key={step.id} style={styles.stepContainer}>

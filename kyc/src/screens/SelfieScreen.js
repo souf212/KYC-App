@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
-  Alert,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import StepIndicator from '../components/StepIndicator';
 import ProgressLoader from '../components/ProgressLoader';
@@ -15,7 +15,6 @@ import CameraCapture from '../components/CameraCapture';
 import VerificationStatus from '../components/VerificationStatus';
 import { useKyc } from '../context/KycContext';
 import { uploadSelfie } from '../services/api';
-import { Dimensions } from 'react-native';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
@@ -59,7 +58,7 @@ const SelfieScreen = () => {
 
       setResultStatus('success');
       setPhase('result');
-    } catch (err) {
+    } catch (_err) {
       setResultStatus('error');
       setPhase('result');
     }

@@ -9,14 +9,14 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import StepIndicator from '../components/StepIndicator';
 import ProgressLoader from '../components/ProgressLoader';
 import CameraCapture from '../components/CameraCapture';
 import DocumentPreview from '../components/DocumentPreview';
 import { useKyc } from '../context/KycContext';
-import { uploadDocument } from '../services/api';
-import { Dimensions } from 'react-native';
+
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { buttonStyles } from '../theme/buttons';
@@ -28,7 +28,7 @@ const SIDES = { FRONT: 'cin_front', BACK: 'cin_back' };
 
 const DocumentScanScreen = () => {
   const router = useRouter();
-  const { customerId, addDocument, uploadedDocuments } = useKyc();
+  const { addDocument, uploadedDocuments } = useKyc();
 
   const [docType, setDocType] = useState(null); // 'cin' | 'passport'
   const [currentSide, setCurrentSide] = useState(SIDES.FRONT);
